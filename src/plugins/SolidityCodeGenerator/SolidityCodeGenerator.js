@@ -72,10 +72,12 @@ define([
         self.loadNodeMap(self.activeNode)
            .then(function (nodes_) {
             nodes = nodes_;
-
             return SolidityCodeGenerator.getGeneratedFiles(self, nodes, self.activeNode);
         })
         .then(function (result) {
+            
+            console.log(result);
+            console.log(result.violations.length);
             if (result.violations.length > 0) {
                 result.violations.forEach(function (violation) {
                     self.createMessage(violation.node, violation.message, 'error');
@@ -171,12 +173,12 @@ define([
                 fileContent = ejs.render(ejsCache.contractType.complete, contractModel);
 
               var parseResult = solidityParser.checkWholeFile(fileContent);
-                if (parseResult) {
-                    self.logger.debug(parseResult.line);
-                    self.logger.debug(parseResult.message);
-                    parseResult.node = contractNode;
-                    violations.push(parseResult);
-                }
+                // if (parseResult) {
+                //     self.logger.debug(parseResult.line);
+                //     self.logger.debug(parseResult.message);
+                //     parseResult.node = contractNode;
+                //     violations.push(parseResult);
+                // }
                 return fileContent;
             })
             .nodeify(callback);
@@ -256,7 +258,7 @@ define([
                     message: 'Transition [' + childName + '] with no source encountered. Please connect or remove it.'
                 });
             }
-            if (!self.core.getAttribute(child, 'tags').match(/^(payable|admin|event|\s|)+$/)){
+            if (!self.core.getAttribute(child, 'tags').match(/^(payable|admin|event|public|view|\s|)+$/)){
               nameAndViolations.violations.push({
                   node: child,
                   message: 'Transition [' + childName + '] has invalid tags. Tags can only be any combination of "payable", "admin", and "event".'
